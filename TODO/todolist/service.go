@@ -9,12 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
-
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-
 	gorm1 "github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/rs/zerolog/log"
-	_ "github.com/rs/zerolog/log"
 )
 
 type HandlerService struct{}
@@ -35,11 +32,7 @@ func (hs *HandlerService) Bootstrap(r *gin.Engine) {
 
 func (hs *HandlerService) PostTodo(c *gin.Context) {
 
-	// db := c.MustGet("DB").(*gorm.DB)
-	// _ = db
-	// fmt.Println("0-0-0-0-0-0-0-0-")
 	dsn := "postgres://" + "postgres" + ":" + "12345678" + "@" + "localhost" + ":" + "5432" + "/" + "todo"
-	// log.Info().Msg(dsn)
 	db, err := gorm1.Open("postgres", dsn)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -63,13 +56,10 @@ func (hs *HandlerService) PostTodo(c *gin.Context) {
 
 func (hs *HandlerService) GetAllList(c *gin.Context) {
 	dsn := "postgres://" + "postgres" + ":" + "12345678" + "@" + "localhost" + ":" + "5432" + "/" + "todo"
-	// log.Info().Msg(dsn)
 	db, err := gorm1.Open("postgres", dsn)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 	}
-	// db := c.MustGet("DB").(*gorm.DB)
-
 	var todo []TodoList
 	if err := db.Debug().Table("todo_list").Find(&todo).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, "erroresponse")
@@ -79,10 +69,7 @@ func (hs *HandlerService) GetAllList(c *gin.Context) {
 }
 
 func (hs *HandlerService) DeleteTodo(c *gin.Context) {
-	// db := c.MustGet("DB").(*gorm.DB)
-
 	dsn := "postgres://" + "postgres" + ":" + "12345678" + "@" + "localhost" + ":" + "5432" + "/" + "todo"
-	// log.Info().Msg(dsn)
 	db, err := gorm1.Open("postgres", dsn)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -123,6 +110,7 @@ func (hs *HandlerService) TempTodo(c *gin.Context) {
 
 }
 
+// Redis connection
 func redisClient() *redis.Client {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
@@ -132,9 +120,9 @@ func redisClient() *redis.Client {
 	return redisClient
 }
 
+// Post data in Redis with Key
 func PostRedisDataWithKey(c *gin.Context, key string, data []byte) error {
 	rdb := redisClient()
-	// ctx := context.Background()
 	ttl := 2
 	var ttlDuration time.Duration
 	if ttl != 0 {
@@ -167,7 +155,6 @@ func (hs *HandlerService) GetAllTempList(c *gin.Context) {
 			return
 		}
 		fmt.Println("redisDataredisData", redisData)
-		// var todo map[string]interface{}
 		if data, ok := redisData["data"].(map[string]interface{}); ok {
 			_ = data
 			todos = append(todos, redisData["data"].(map[string]interface{}))
@@ -179,19 +166,14 @@ func (hs *HandlerService) GetAllTempList(c *gin.Context) {
 
 func (hs *HandlerService) AddTwoNumber(c *gin.Context) {
 
-	// db := c.MustGet("DB").(*gorm.DB)
-	// _ = db
-	// fmt.Println("0-0-0-0-0-0-0-0-")
-	
 	var twoNumbers Numbers
 	if err := c.ShouldBindJSON(&twoNumbers); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "Status": http.StatusBadRequest})
 		return
 	}
 	sum := twoNumbers.Number1 + twoNumbers.Number2
-		
-	c.JSON(http.StatusOK, gin.H{"Sum of Two Numbers": sum})
 
+	c.JSON(http.StatusOK, gin.H{"Sum of Two Numbers": sum})
 
 }
 
@@ -202,10 +184,10 @@ func (hs *HandlerService) Division(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "Status": http.StatusBadRequest})
 		return
 	}
-	fmt.Println("twoNumbers.Dividend" , twoNumbers.Dividend)
-	fmt.Println("twoNumbers.Dividend" , twoNumbers.Divisor)
+	fmt.Println("twoNumbers.Dividend", twoNumbers.Dividend)
+	fmt.Println("twoNumbers.Dividend", twoNumbers.Divisor)
 	sum := twoNumbers.Dividend / twoNumbers.Divisor
-		
+
 	c.JSON(http.StatusOK, gin.H{"value after Division": sum})
 
 }

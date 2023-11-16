@@ -14,11 +14,10 @@ import (
 
 func main() {
 	// Initialize Dependencies
-	// Service Port, Database, Logger, Cache, Message Queue etc.
+	// Service Port, Database, Logger, Cache etc.
 	router := gin.Default()
 
 	dsn := "postgres://" + "postgres" + ":" + "12345678" + "@" + "localhost" + ":" + "5432" + "/" + "todo"
-	// log.Info().Msg(dsn)
 	db, err := gorm1.Open("postgres", dsn)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -26,6 +25,7 @@ func main() {
 	defer db.Close()
 	db.SingularTable(true)
 	db.DB().SetMaxIdleConns(10)
+	//redis connection
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
 		Password: "",
